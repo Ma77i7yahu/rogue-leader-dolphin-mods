@@ -1,0 +1,344 @@
+Star Wars Rogue Squadron II: Rogue Leader (GSWE64, US disc, revision 0) - every change the installer makes
+
+These go into Dolphin's per-game settings file, User\GameSettings\GSWE64.ini.
+Patch lines are address:dword:new[:original]. A line with an original value only writes when
+that value is found at the address. A line without one writes to memory the game doesn't use.
+
+==========================================================================================
+Safe 16:9 widescreen (fixes the Kothlis and Death Star crashes)
+==========================================================================================
+[Core] RAMOverrideEnable = True
+[Core] MEM1Size = 50331648
+[Video_Settings] AspectRatio = 4
+[Video_Settings] CustomAspectRatioWidth = 64
+[Video_Settings] CustomAspectRatioHeight = 35
+$Safe 16:9 widescreen (cave in unused exception vectors 0x80000A00)
+  0x80000A00:dword:0x3D808000
+  0x80000A04:dword:0xC0CC0AF0
+  0x80000A08:dword:0xEC2101B2
+  0x80000A0C:dword:0xD023012C
+  0x80000A10:dword:0x4BC142FC
+  0x80000A20:dword:0x3D808000
+  0x80000A24:dword:0x396C0B00
+  0x80000A28:dword:0x38000010
+  0x80000A2C:dword:0x7C0903A6
+  0x80000A30:dword:0x3943FFFC
+  0x80000A34:dword:0x392BFFFC
+  0x80000A38:dword:0x840A0004
+  0x80000A3C:dword:0x94090004
+  0x80000A40:dword:0x4200FFF8
+  0x80000A44:dword:0xC02C0AF4
+  0x80000A48:dword:0xC00B0000
+  0x80000A4C:dword:0xEC000072
+  0x80000A50:dword:0xD00B0000
+  0x80000A54:dword:0xC00B000C
+  0x80000A58:dword:0xEC000072
+  0x80000A5C:dword:0xD00B000C
+  0x80000A60:dword:0x7D635B78
+  0x80000A64:dword:0x48036BB8
+  0x80000AF0:dword:0x3FAF8AF9
+  0x80000AF4:dword:0x3F3AAAAB
+  0x80114E08:dword:0x483EBCF8:0xD023012C
+  0x8026B47C:dword:0x482956A5:0x482CC2A1
+  0x801DB71C:dword:0x48325405:0x4835C001
+  0x8023FE18:dword:0x482C0D09:0x482F7905
+  0x7FDF6F78:dword:0x3FEA0EA1:0x3FAAAAAB
+  0x7FDF6F78:dword:0x3FEA0EA1:0x3FAAAAAA
+$Bigger VM page pool (16MB at 0x81800000, needs MEM1 48MB override)
+  0x80006DFC:dword:0x3CC00100:0x80C10028
+  0x800092F0:dword:0x3C000180:0x3C038000
+  0x80009450:dword:0x806DAF10:0x806DAF18
+  0x80009454:dword:0x3F230001:0x800DAF14
+  0x80009458:dword:0x60000000:0x3F238000
+  0x8000945C:dword:0x60000000:0x7F20CA14
+  0x80006E04:dword:0x3C608180:0x48025901
+  0x80006E08:dword:0x4802228D:0x3C000180
+  0x80006E0C:dword:0x48000030:0x7C030040
+$Terrain cell record array 4096 -> 10922 (widescreen overflow fix)
+  0x8028A42C:dword:0x3C7C0001:0x387CC000
+  0x8028A450:dword:0x3C9C0001:0x389CC000
+$Skip terrain cells with invalid texture id (>= table count) - widescreen crash fix
+  0x80000AA0:dword:0x819D00B4
+  0x80000AA4:dword:0x818C0000
+  0x80000AA8:dword:0x7C1F6040
+  0x80000AAC:dword:0x4180000C
+  0x80000AB0:dword:0x4BCBFF34
+  0x80000AB4:dword:0x60000000
+  0x80000AB8:dword:0x38DD0374
+  0x80000ABC:dword:0x4BCBFEB0
+  0x801C0A68:dword:0x48340138:0x38DD0374
+$Invalid terrain texture -> tile 0 (site 2, GXLoadTexObj) - widescreen crash fix
+  0x80000AC0:dword:0x819F00B4
+  0x80000AC4:dword:0x818C0000
+  0x80000AC8:dword:0x7C006040
+  0x80000ACC:dword:0x41800008
+  0x80000AD0:dword:0x38000000
+  0x80000AD4:dword:0x54002834
+  0x80000AD8:dword:0x4BCC4D2C
+  0x80000ADC:dword:0x60000000
+  0x801C5900:dword:0x4833B2C0:0x54002834
+$Terrain bin index clamp (map byte & 0x7F) - heap overflow fix
+  0x801C0D68:dword:0x51970030:0x7D97BB78
+  0x801C0E5C:dword:0x51970030:0x7D97BB78
+$Surface row-span table x4 (Death Star widescreen heap overflow fix)
+  0x80288DC0:dword:0x54632036:0x5463103A
+
+==========================================================================================
+Precise flying: gentler lean, linear turn and pitch
+==========================================================================================
+$Bank curve - less roll on small inputs
+  0x80133028:dword:0x38600001:0x38600000
+$Linear turn - no stick hard-turn zone (left/right) - stock curve while tow cable attached (cave 0x80001100)
+  0x80001100:dword:0x819E0484
+  0x80001104:dword:0x558C843E
+  0x80001108:dword:0x280C3F00
+  0x8000110C:dword:0x4180000C
+  0x80001110:dword:0xC0A2868C
+  0x80001114:dword:0x4BC314A8
+  0x80001118:dword:0xC0A28658
+  0x8000111C:dword:0x4BC314A0
+  0x80001120:dword:0x819E0484
+  0x80001124:dword:0x558C843E
+  0x80001128:dword:0x280C3F00
+  0x8000112C:dword:0x4180000C
+  0x80001130:dword:0xC0C2860C
+  0x80001134:dword:0x4BC314C0
+  0x80001138:dword:0xC0C2866C
+  0x8000113C:dword:0x4BC314B8
+  0x801326B8:dword:0x483CEB48:0xC0A28658
+  0x801326F0:dword:0x483CEB30:0xC0C2866C
+$Linear pitch - no stick hard-pull zone (up/down) - stock curve while tow cable attached (cave 0x80001140)
+  0x80001140:dword:0x819E0484
+  0x80001144:dword:0x558C843E
+  0x80001148:dword:0x280C3F00
+  0x8000114C:dword:0x4180000C
+  0x80001150:dword:0xC0A2868C
+  0x80001154:dword:0x4BC31574
+  0x80001158:dword:0xC0A28658
+  0x8000115C:dword:0x4BC3156C
+  0x80001160:dword:0x819E0484
+  0x80001164:dword:0x558C843E
+  0x80001168:dword:0x280C3F00
+  0x8000116C:dword:0x4180000C
+  0x80001170:dword:0xC0C2860C
+  0x80001174:dword:0x4BC3158C
+  0x80001178:dword:0xC0C2866C
+  0x8000117C:dword:0x4BC31584
+  0x801327C4:dword:0x483CEA7C:0xC0A28658
+  0x801327FC:dword:0x483CEA64:0xC0C2866C
+
+==========================================================================================
+Tight turn on its own button (C-stick Left), no speed loss
+==========================================================================================
+$Tight turn button (L click) - no speed loss; hard brake = full analog L
+  0x80131FFC:dword:0xC0230020:0x806300E8
+  0x80132000:dword:0xC002869C:0xC0028628
+  0x80132010:dword:0x60000000:0xC8210228
+  0x80132014:dword:0x60000000:0xEC211028
+  0x8013201C:dword:0x41800028:0x41820028
+  0x8013215C:dword:0xC0030020:0x800300E8
+  0x80132160:dword:0xC022869C:0x7CA00038
+  0x8013216C:dword:0x60000000:0xC8010228
+  0x80132170:dword:0x60000000:0xEC001028
+  0x80132178:dword:0x41800010:0x41820010
+$Tight turn - any stick position, same for all craft (yaw x2.2)
+  0x80132924:dword:0xC0428628:0xC0428648
+  0x80132974:dword:0xC0A2862C:0xC0A28680
+  0x80132994:dword:0xC0A282EC:0xECA83828
+$Tight turn - pitch (x2.2)
+  0x801329FC:dword:0xC0428628:0xC0428648
+  0x80132A4C:dword:0xC0A282EC:0xC0A30058
+  0x80132A50:dword:0x60000000:0xECB8282A
+  0x80132A54:dword:0x60000000:0xECA53028
+$Tight turn on C-stick Left (keeps slider analog live)
+  0x80000A80:dword:0xA07C0000
+  0x80000A84:dword:0xA89C0004
+  0x80000A88:dword:0x2C04E0FF
+  0x80000A8C:dword:0x4D810020
+  0x80000A90:dword:0x60630040
+  0x80000A94:dword:0xD37E0038
+  0x80000A98:dword:0x4E800020
+  0x8012420C:dword:0x483DC975:0x90010014
+  0x80124210:dword:0x9001001C:0x93E10010
+  0x80124214:dword:0xC8010018:0xC8010010
+  0x80124218:dword:0xEC00F828:0xEC00F828
+  0x8012421C:dword:0xEC00D024:0xEC00D024
+  0x80124220:dword:0xD01E0048:0xD01E0048
+  0x80124224:dword:0x881C0007:0x881C0007
+  0x80124228:dword:0x90010024:0x9001000C
+  0x8012422C:dword:0xC8010020:0x93E10008
+  0x80124230:dword:0xEC00F828:0xC8010008
+  0x80124234:dword:0xEC00D024:0xEC00F828
+  0x80124238:dword:0xD01E004C:0xEC00D024
+  0x8012423C:dword:0xA01E0050:0xD01E004C
+  0x80124240:dword:0x7C001A78:0xA07C0000
+  0x80124244:dword:0x7C600038:0xA01E0050
+  0x80124248:dword:0xB01E0052:0x7C001A78
+  0x8012424C:dword:0xB07E0050:0x7C600038
+  0x80124250:dword:0x60000000:0xB01E0052
+  0x80124254:dword:0x60000000:0xA01C0000
+  0x80124258:dword:0x60000000:0xB01E0050
+
+==========================================================================================
+Remove the game's stick dead zone
+==========================================================================================
+$No game stick dead zone (small movements respond, full stick unchanged)
+  0x80095BE0:dword:0x1EB40057:0x1EB40F48
+  0x80095BE4:dword:0x300F3B1F:0x280F3B1F
+  0x80096DF0:dword:0x42AE0000:0x42900000
+
+==========================================================================================
+Laser convergence instead of aim assist
+==========================================================================================
+$Laser convergence (guns meet on nose line at target distance, no pull; cave 0x80001180)
+  0x80001180:dword:0x3D808000
+  0x80001184:dword:0x618C1240
+  0x80001188:dword:0xC00CFFF0
+  0x8000118C:dword:0xFC010000
+  0x80001190:dword:0x40800008
+  0x80001194:dword:0xFC200090
+  0x80001198:dword:0xC0440024
+  0x8000119C:dword:0xC07D0024
+  0x800011A0:dword:0xEC421828
+  0x800011A4:dword:0xC0840028
+  0x800011A8:dword:0xC0BD0028
+  0x800011AC:dword:0xEC842828
+  0x800011B0:dword:0xC0C4002C
+  0x800011B4:dword:0xC0FD002C
+  0x800011B8:dword:0xECC63828
+  0x800011BC:dword:0xC11D0018
+  0x800011C0:dword:0xEC020232
+  0x800011C4:dword:0xC11D001C
+  0x800011C8:dword:0xEC04023A
+  0x800011CC:dword:0xC11D0020
+  0x800011D0:dword:0xEC06023A
+  0x800011D4:dword:0xED084028
+  0x800011D8:dword:0xFC004000
+  0x800011DC:dword:0x4C810020
+  0x800011E0:dword:0xC11D0018
+  0x800011E4:dword:0xEC48183A
+  0x800011E8:dword:0xD04C0024
+  0x800011EC:dword:0xC11D001C
+  0x800011F0:dword:0xEC88283A
+  0x800011F4:dword:0xD08C0028
+  0x800011F8:dword:0xC11D0020
+  0x800011FC:dword:0xECC8383A
+  0x80001200:dword:0xD0CC002C
+  0x80001204:dword:0x7D846378
+  0x80001208:dword:0x4BC0A194
+  0x80001230:dword:0x3E32B8C2
+  0x8016D4F8:dword:0x48393D89:0x4BF9DFA5
+  0x8016D568:dword:0x48393D19:0x4BF9DF35
+  0x8016D57C:dword:0x48393D05:0x4BF9DF21
+
+==========================================================================================
+Single dark orange crosshair (no big ring or side lines)
+==========================================================================================
+$Gunsight - dark orange X sight only (no big ring, no side lines)
+  0x80098344:dword:0xFF8000C8:0x00FF0046
+  0x80098348:dword:0xFF8000C8:0x6464FF82
+  0x8016C548:dword:0x1C0000C8:0x1C00006E
+  0x8016C530:dword:0x60000000:0x4BFFD205
+  0x8016C6A4:dword:0x60000000:0x4BFFD091
+  0x8016C6F0:dword:0x60000000:0x4BFFD045
+
+==========================================================================================
+Show the Gold requirements once you have Gold
+==========================================================================================
+$Results screen - "Needed for Gold" heading when Gold earned (cave 0x80001000)
+  0x80001000:dword:0x2C1A0004
+  0x80001004:dword:0x4182000C
+  0x80001008:dword:0x2C130004
+  0x8000100C:dword:0x40820038
+  0x80001010:dword:0x7C0802A6
+  0x80001014:dword:0x90010004
+  0x80001018:dword:0x9421FFF0
+  0x8000101C:dword:0x881F3BA4
+  0x80001020:dword:0x807F3B80
+  0x80001024:dword:0x1C00006C
+  0x80001028:dword:0x7C630214
+  0x8000102C:dword:0x3C808000
+  0x80001030:dword:0x60841080
+  0x80001034:dword:0x4BD3D421
+  0x80001038:dword:0x80010014
+  0x8000103C:dword:0x38210010
+  0x80001040:dword:0x7C0803A6
+  0x80001044:dword:0x881F3BA4
+  0x80001048:dword:0x4E800020
+  0x80001080:dword:0x004E0065
+  0x80001084:dword:0x00650064
+  0x80001088:dword:0x00650064
+  0x8000108C:dword:0x00200066
+  0x80001090:dword:0x006F0072
+  0x80001094:dword:0x00200047
+  0x80001098:dword:0x006F006C
+  0x8000109C:dword:0x00640000
+  0x802747F0:dword:0x4828C911:0x881F3BA4
+$Results screen - show Gold requirements after Gold earned
+  0x802742BC:dword:0x60000000:0x418201B0
+  0x802742DC:dword:0x7E659B78:0x389B0001
+  0x802742E0:dword:0x48000014:0x48000020
+  0x802742E8:dword:0x38800000:0x4080000C
+  0x802742EC:dword:0x41800014:0x38800000
+  0x802742F0:dword:0x7F45D378:0x48000010
+  0x802742F4:dword:0x3885FFFF:0x2C1A0004
+  0x802742F8:dword:0x7CA01670:0x40800174
+  0x802742FC:dword:0x7C802050:0x389AFFFF
+  0x80274650:dword:0x60000000:0x418201FC
+  0x80274658:dword:0x60000000:0x418201F4
+
+==========================================================================================
+Count wingman kills in "Enemies destroyed"
+==========================================================================================
+$Enemies destroyed - include wingman kills (cave 0x80001280)
+  0x80001280:dword:0x81060008
+  0x80001284:dword:0x80C70014
+  0x80001288:dword:0x7C003040
+  0x8000128C:dword:0x4182000C
+  0x80001290:dword:0x81270008
+  0x80001294:dword:0x7C084840
+  0x80001298:dword:0x4BC455C4
+  0x80146954:dword:0x483BAA2C:0x80C70014
+
+==========================================================================================
+Keep the menu fade-outs
+==========================================================================================
+[Video_Hacks] EFBToTextureEnable = False
+
+==========================================================================================
+Remove dithering
+==========================================================================================
+[Gecko_Enabled] $Disable Dithering (a code that comes with Dolphin)
+
+==========================================================================================
+Emulated CPU at 130% (less in-game slowdown)
+==========================================================================================
+[Core] OverclockEnable = True
+[Core] Overclock = 1.3
+
+==========================================================================================
+Logitech Extreme 3D controller profile (User\Config\Profiles\GCPad)
+==========================================================================================
+[Profile]
+Device = DInput/0/Logitech Extreme 3D
+Buttons/A = `Button 0`
+Buttons/B = `Button 1`
+Buttons/X = `Button 3`
+Buttons/Y = `Button 9`
+Buttons/Z = `Button 6`
+Buttons/Start = `Button 7`
+Main Stick/Up = `Axis Y-`
+Main Stick/Down = `Axis Y+`
+Main Stick/Left = `Axis X-`
+Main Stick/Right = `Axis X+`
+C-Stick/Up = `Button 4`
+C-Stick/Down = `Button 5`
+C-Stick/Left = `Button 8`
+Triggers/R = `Button 11`
+Triggers/L-Analog = `Button 2` | `Button 10` | `Slider 0+`
+Triggers/R-Analog = `Slider 0-`
+D-Pad/Up = `Hat 0 N`
+D-Pad/Down = `Hat 0 S`
+D-Pad/Left = `Hat 0 W`
+D-Pad/Right = `Hat 0 E`
+Main Stick/Dead Zone = 5.
